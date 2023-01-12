@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- css link  -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- js link  -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<style>
+    .fileinput{
+        width: 550px;
+        height: 150px;
+        border: 5px dashed #eee;
+        text-align: center;
+        line-height: 100px;
+        margin: 0 auto ;
+    }
+
+/* 2 */
+    #urldiv{
+        display: none;
+        width : 60%;
+        margin: 0 auto;
+
+    }
+
+    #url{
+        width: 100% ;
+    }
+
+
+</style>
+
+</head>
+<body style="background-color: #42c5f5;">
+
+    <div class="container text-center my-5">
+        <img src="{% static 'home/images/logo.png' %}" alt="NoImage" height="250px">
+    </div>
+    
+    <div id="fileinput" class="fileinput" >
+        Drag and Drop File Here
+    </div>
+
+    <div class="container my-2 text-center">
+        <p class="lead" id="fileMsg"></p>
+    </div>
+
+    <div class="text-center my-4">
+        <button class="btn btn-success" onclick="UploadFiles()">Upload File</button>
+    </div>
+
+
+<!-- 1 -->
+    <div class="text-center my-4" id="urldiv">
+        <input type="text" id="url">
+        <button class="btn btn-secondary btn-sm my-2" onclick="myfunction()">
+            Click To Copy Link
+        </button>
+    </div>
+
+
+
+
+    <script>
+
+        var url = null
+        var AllFiles = null
+        var fileMsg = document.getElementById('fileMsg')
+        var data = {}
+
+        const dropzone = document.querySelector('#fileinput')
+
+        dropzone.addEventListener('dragover', function(e){
+        //dropzon.addEventListener('dragover', (e) =>) {
+            console.log('Dragover Event Call')
+            e.preventDefault();    
+        })
+
+        dropzone.addEventListener('drop', function(e){
+            e.preventDefault();
+            console.log('drop Event')
+
+            AllFiles = e.dataTransfer.files;
+
+            fileMsg.innerHTML = `${AllFiles.length} Files are ready to upload`
+            console.log(AllFiles)
+        })
+
+
+        function UploadFiles() {
+            if (!AllFiles) {
+                alert("Please Drag File Before upload")
+            }
+
+            else {
+                //alert("File Uploaded")
+
+                // console.log(AllFiles)
+//
+                // creating FormData object
+                var formdata = new FormData()
+
+                for (var i = 0; i < AllFiles.length; i++) {
+                    //let file = fileinput.files
+                    formdata.append('files', AllFiles[i])
+                // console.log(AllFiles[i])
+
+                }
+
+                // console.log(formdata);
+
+//
+                
+                // fetch('/handle/', {method : 'POST', body: formdata}).then(
+                    fetch('/handle/', {method : 'POST', body: formdata, 'X-CSRF-TOKEN': '{{csrf_token}}' }).then(
+                    response => response.json()).then(
+                        result => {
+                            // console.log(result.data.folder)
+                            console.log(result)
+                            // console.log(resule.data)
+
+                            url = `http://127.0.0.1:8000/download/${result.data.folder}`
+                            
+                            // 3
+                            // alert(url)
+
+                            document.getElementById('url').value = url;
+                            document.getElementById('urldiv').style.display = 'block';
+                        }
+                    )
+                
+
+            }
+            
+        }
+
+        // 4
+        function myfunction() {
+            // Get the text field
+            var copyText = document.getElementById("url");
+
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+            // Alert the copied text
+            alert("Copied the text: " + copyText.value);
+            }
+
+    </script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- in terminal after Quiting the server -->
+<!-- for dependencies required for the project -->
+<!-- pip3 freeze -->
+<!-- want in file format  -->
+<!--  pip3 freeze > file_name -->
+<!-- pip3 freeze > requirements.txt -->
